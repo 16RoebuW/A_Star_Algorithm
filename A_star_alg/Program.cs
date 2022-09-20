@@ -11,21 +11,22 @@ namespace A_star_alg
         static void Main(string[] args)
         {
             // Initial graph
-            Node A = new Node();
-            Node B = new Node();
-            Node C = new Node();
-            Node D = new Node();
-            Node E = new Node();
-            Node F = new Node();
-            Node G = new Node();
-            Node H = new Node();
-            Node I = new Node();
+            Node A = new Node("Aberdeen");
+            Node B = new Node("Birmingham");
+            Node C = new Node("Cardiff");
+            Node D = new Node("Derby");
+            Node E = new Node("Edinburgh");
+            Node F = new Node("Fulford");
+            Node G = new Node("Glasgow");
+            Node H = new Node("Harrogate");
+            Node I = new Node("Islington");
+            List<Node> graph = new List<Node> { A, B, C, D, E, F, G, H, I };
 
             A.Join(C, 1);
             A.Join(F, 2);
             A.Join(H, 3);
             A.Join(G, 4);
-            A.Join(E, 5);
+            A.Join(E, 8);
             B.Join(E, 6);
             B.Join(F, 7);
             B.Join(H, 8);
@@ -33,13 +34,96 @@ namespace A_star_alg
             C.Join(I, 3);
             C.Join(D, 2);
             E.Join(G, 8);
-            E.Join(F, 7);
+            E.Join(F, 5);
             G.Join(H, 4);
             H.Join(I, 2);
 
+            // The graph can be seen here: https://imgur.com/CDRboIP
 
+            List<Node> shortestPath = AStar(graph, E, A, 1);
+            for (int i = 0; i < shortestPath.Count; i++)
+            {
+                Console.WriteLine(shortestPath[i].name);
+            }
+            Console.ReadLine();
 
+        }
 
+        public static List<Node> AStar(List<Node> graph, Node start, Node end, float heuristic)
+        {
+            // For any node in the open set, cameFrom at the same index is the node before it on the shortest path 
+            var cameFrom = new List<Node>();
+
+            // gScore is the cost of the cheapest path from start to the node
+            var gScore = new List<float>();
+
+            // fScore is our current best guess at how cheap a path could be
+            var fScore = new List<float>();
+
+            List<bool> explored = new List<bool>();
+
+            foreach (Node n in graph)
+            {
+                graph.Add(n);
+                cameFrom.Add(null);
+                gScore.Add(float.PositiveInfinity);
+                fScore.Add(float.PositiveInfinity);
+                explored.Add(false);
+            }
+            int startPos = graph.IndexOf(start);
+            gScore[startPos] = 0f;
+            fScore[startPos] = heuristic;
+
+            while (explored.Contains(false))
+            {
+                // The node with the lowest fScore
+                int currentPos = -1;
+                float min = float.PositiveInfinity;
+                for (int i = 0; i < fScore.Count; i++)
+                {
+                    if (fScore[i] < min && explored[i] == false)
+                    {
+                        currentPos = i;
+                        min = fScore[i];
+                    }
+                }
+                Node currentNode = graph[currentPos];
+                if (currentNode == end)
+                {
+                    List<Node> path = new List<Node>();
+                    while (currentNode != null)
+                    {
+                        path.Add(currentNode);
+                        currentNode = cameFrom[graph.IndexOf(currentNode)];
+                    }
+                    path.Reverse();
+                    return path;
+                }
+                else
+                {
+                    explored[currentPos] = true;
+                    
+                    for (int i = 0; i < currentNode.connections.Count; i++)
+                    {
+                        int neighbourPos = graph.IndexOf(currentNode.connections[i]);
+                        float temp_gScore = gScore[currentPos] + currentNode.weights[i];
+                        if (temp_gScore < gScore[neighbourPos])
+                        {
+                            // This path is better than any previous one
+                            cameFrom[neighbourPos] = currentNode;
+                            gScore[neighbourPos] = temp_gScore;
+                            fScore[neighbourPos] = temp_gScore + heuristic;
+
+                            if (explored[neighbourPos] == true)
+                            {
+                                explored[neighbourPos] = false;
+                            }
+                        }
+                    }
+                }
+            }
+            // Failure
+            return null;
         }
     }
 
@@ -47,6 +131,7 @@ namespace A_star_alg
     {
         public List<Node> connections = new List<Node>();
         public List<int> weights = new List<int>();
+        public string name;
 
         public void Join(Node other, int weight)
         {
@@ -63,6 +148,10 @@ namespace A_star_alg
                 other.connections.Add(this);
                 other.weights.Add(weight);
             }
+        }
+        public Node(string name)
+        {
+            this.name = name;
         }
     }
 }

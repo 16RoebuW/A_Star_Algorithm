@@ -40,7 +40,7 @@ namespace A_star_alg
 
             // The graph can be seen here: https://imgur.com/CDRboIP
 
-            List<Node> shortestPath = AStar(graph, E, A, 1);
+            List<Node> shortestPath = AStar(graph, E, A);
             for (int i = 0; i < shortestPath.Count; i++)
             {
                 Console.WriteLine(shortestPath[i].name);
@@ -49,7 +49,7 @@ namespace A_star_alg
 
         }
 
-        public static List<Node> AStar(List<Node> graph, Node start, Node end, float heuristic)
+        public static List<Node> AStar(List<Node> graph, Node start, Node end)
         {
             // For any node in the open set, cameFrom at the same index is the node before it on the shortest path 
             var cameFrom = new List<Node>();
@@ -72,7 +72,7 @@ namespace A_star_alg
             }
             int startPos = graph.IndexOf(start);
             gScore[startPos] = 0f;
-            fScore[startPos] = heuristic;
+            fScore[startPos] = Heuristic(start, end);
 
             while (explored.Contains(false))
             {
@@ -112,7 +112,7 @@ namespace A_star_alg
                             // This path is better than any previous one
                             cameFrom[neighbourPos] = currentNode;
                             gScore[neighbourPos] = temp_gScore;
-                            fScore[neighbourPos] = temp_gScore + heuristic;
+                            fScore[neighbourPos] = temp_gScore + Heuristic(graph[neighbourPos], end);
 
                             if (explored[neighbourPos] == true)
                             {
@@ -124,6 +124,12 @@ namespace A_star_alg
             }
             // Failure
             return null;
+        }
+
+        public static float Heuristic(Node current, Node goal)
+        {
+            // Good heuristic goes here.
+            return 1f;
         }
     }
 

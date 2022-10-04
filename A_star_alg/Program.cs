@@ -40,7 +40,7 @@ namespace A_star_alg
 
             // The graph can be seen here: https://imgur.com/CDRboIP
 
-            List<Node> shortestPath = AStar(graph, E, A);
+            List<Node> shortestPath = AStar(graph, I, B);
             for (int i = 0; i < shortestPath.Count; i++)
             {
                 Console.WriteLine(shortestPath[i].name);
@@ -64,7 +64,6 @@ namespace A_star_alg
 
             foreach (Node n in graph)
             {
-                graph.Add(n);
                 cameFrom.Add(null);
                 gScore.Add(float.PositiveInfinity);
                 fScore.Add(float.PositiveInfinity);
